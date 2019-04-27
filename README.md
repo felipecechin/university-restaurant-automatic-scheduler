@@ -14,6 +14,8 @@ Coloque sua matrícula e senha de acesso ao portal da UFSM no arquivo "account.j
 
 Execute o script "ru.js" via terminal informando as data início e fim do agendamento.
 
+Caso as duas datas não sejam informadas e o script estiver rodando em um domingo, o agendamento será da próxima segunda à próxima sexta.
+
 `node ru.js 29/04/2019 30/04/2019`
 
 O scrip irá exibir algumas mensagens de andamento do processo.
