@@ -13,5 +13,5 @@ Execute o script "ru.js" via terminal informando as data início e fim do agenda
 
 O script acusa erro caso as datas sejam inválidas.
 
-**Obs.: O agendamento será de almoço no RU - Campus II.
+**Obs.: O agendamento será de almoço no RU - Campus II.**
 
