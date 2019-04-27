@@ -16,7 +16,7 @@ Execute o script "ru.js" via terminal informando as data início e fim do agenda
 
 `node ru.js 29/04/2019 30/04/2019`
 
-Caso as duas datas não sejam informadas e o script estiver rodando em um domingo, o agendamento será da próxima segunda à próxima sexta.
+Caso as duas datas não sejam informadas e o script estiver rodando em um domingo, o agendamento será da próxima segunda-feira à próxima sexta-feira.
 
 O scrip irá exibir algumas mensagens de andamento do processo.
 
