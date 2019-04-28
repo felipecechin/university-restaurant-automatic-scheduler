@@ -8,8 +8,6 @@ Ao clonar, entre na pasta que estão os arquivos e execute o comando para instal
 
 `npm install --save`
 
-Crie uma pasta images no mesmo diretório.
-
 Coloque sua matrícula e senha de acesso ao portal da UFSM no arquivo "account.js".
 
 Execute o script "ru.js" via terminal informando as data início e fim do agendamento.
