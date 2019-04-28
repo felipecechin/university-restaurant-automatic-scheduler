@@ -16,7 +16,7 @@ Execute o script "ru.js" via terminal informando as data início e fim do agenda
 
 Caso as duas datas não sejam informadas e o script estiver rodando em um domingo, o agendamento será da próxima segunda-feira à próxima sexta-feira.
 
-O scrip irá exibir algumas mensagens de andamento do processo.
+O script irá exibir algumas mensagens de andamento do processo.
 
 Ao final, um print da tela será guardado na pasta images.
 
