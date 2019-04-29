@@ -85,4 +85,9 @@ typings/
 
 package-lock.json
 .idea
+
+# Input of 'ru.js'
 account.js
+
+#Output of 'ru.js'
+*.png
