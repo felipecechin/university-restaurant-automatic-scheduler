@@ -69,8 +69,8 @@ function *run() {
         yield nightmare
             .select('select[id="restaurante"]', "41")
             .check('input[id="tiposRefeicao_1"]')
-            .type('input[id="periodo_inicio"', dataInicio)
-            .type('input[id="periodo_fim"', dataFim)
+            .type('input[id="periodo_inicio"]', dataInicio)
+            .type('input[id="periodo_fim"]', dataFim)
             .click('button[type="submit"]')
             .wait('div[class="table-wrapper scrollable stroked margin-v"]')
 
