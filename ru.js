@@ -31,9 +31,11 @@ function *run() {
             console.log("Você deve informar duas datas validas")
             return
         }
-        if (!dataInicioMoment.isBefore(dataFimMoment) || !dataInicioMoment.isAfter(dataAtual)) {
-            console.log("Você deve informar duas datas validas")
-            return
+        if (dataInicio != dataFim) {
+            if (!dataInicioMoment.isBefore(dataFimMoment) || !dataInicioMoment.isAfter(dataAtual)) {
+                console.log("Você deve informar duas datas validas")
+                return
+            }
         }
         if (dataInicioMoment.diff(dataAtual, 'days')>5 || dataFimMoment.diff(dataAtual, 'days')>5) {
             console.log("A data inicio e a data fim nao podem ter mais que 5 dias de diferenca com a data atual")
@@ -41,7 +43,15 @@ function *run() {
         }
     }
 
-    let nightmare = Nightmare({show: false, waitTimeout: 10000});
+    let nightmare = Nightmare({ waitTimeout: 10000,
+        show: false,
+        frame: false,
+        maxHeight:16384,
+        maxWidth:16384,
+        width: 1200,
+        height: 1024
+    });
+    var dimensoes = "";
     try {
         console.log('Iniciando agendamento do RU');
 
@@ -74,17 +84,21 @@ function *run() {
             .click('button[type="submit"]')
             .wait('div[class="table-wrapper scrollable stroked margin-v"]')
 
-        var currentHeight = yield nightmare.evaluate(function () {
-            return document.body.scrollHeight;
+        dimensoes = yield nightmare.evaluate(function () {
+            var body = document.querySelector('body');
+            return {
+                width: body.scrollWidth,
+                height: body.scrollHeight
+            }
         });
     } catch (e) {
         console.log("Ocorreu algum erro, visualize a imagem")
     }
-    yield nightmare.scrollTo(currentHeight, 0)
-    console.log("Salvando imagem")
+    console.log("Salvando imagem");
 
-    yield nightmare
-        .screenshot('./images/ru.png')
+    yield nightmare.viewport(dimensoes.width, dimensoes.height)
+        .wait(1000)
+        .screenshot('./images/ru.png');
 
 
     yield nightmare.end();
