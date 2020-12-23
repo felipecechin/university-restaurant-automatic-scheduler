@@ -132,8 +132,7 @@ function* run() {
                 data: data
             })
                 .then(function (response) {
-                    console.log(response.data)
-                    if (response.data.ParsedResults[0] && response.data.ParsedResults[0].ParsedText) {
+                    if (response.data.ParsedResults && response.data.ParsedResults[0] && response.data.ParsedResults[0].ParsedText) {
                         let text = response.data.ParsedResults[0].ParsedText
                         return text.replace(/\s/g, '').toUpperCase();
                     } else {
