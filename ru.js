@@ -60,7 +60,9 @@ function* run() {
         width: 1200,
         height: 1024
     });
+    let data;
     var dimensoes = "";
+    let campo;
     try {
         console.log('Iniciando agendamento do RU');
 
@@ -77,7 +79,6 @@ function* run() {
             .type('input[id=senha]', senha)
             .click('form button[type=submit]')
             .wait('nav[class="band navbar gradient "] div[class="container mini-padding-v"] ul[class="nav responsive"] li:nth-child(3) div[class="btn-group block"] a')
-        let campo;
         console.log("Indo para tela de agendamentos")
         yield nightmare
             .click('nav[class="band navbar gradient "] div ul li:nth-child(3) div a')
@@ -91,61 +92,78 @@ function* run() {
                 height: body.scrollHeight
             }
         });
-        console.log("Preenchendo as opções")
-        yield nightmare
-            .select('select[id="restaurante"]', "41")
-            .type('input[name="periodo.inicio"]', dataInicio)
-            .wait('div[id="divRefeicoes"]')
-            .type('input[name="periodo.fim"]', dataFim)
-            .check('input[id="opcaoVegetariana_false"]')
-            .check('input[id="checkTipoRefeicao2"]')
-            .screenshotSelector({selector: 'img[id="imgCaptcha"]', path: 'screen.png'})
-
-        console.log("Imagem do captcha salva")
-        yield jimp.read("screen.png").then(image => {
-            return image.normalize().greyscale().contrast(0.6).write('text.png')
-        });
-
-        let data = new formData();
-        data.append('language', 'por')
-        data.append('isOverlayRequired', 'false');
-        data.append('iscreatesearchablepdf', 'false');
-        data.append('issearchablepdfhidetextlayer', 'false');
-        data.append('filetype', 'png')
-        data.append('OCREngine', '2');
-        data.append('url', fs.createReadStream("./text.png"));
-        console.log('Buscando o texto da imagem')
-        campo = yield axios({
-            method: 'post',
-            url: 'https://api.ocr.space/parse/image',
-            headers: {
-                'apikey': 'API',
-                ...data.getHeaders()
-            },
-            data: data
-        })
-            .then(function (response) {
-                if (response.data.ParsedResults[0] && response.data.ParsedResults[0].ParsedText) {
-                    let text = response.data.ParsedResults[0].ParsedText
-                    return text.replace(/\s/g, '').toUpperCase();
-                } else {
-                    return "ERRO";
-                }
-            })
-        console.log("CAPTCHA: " + campo);
-        console.log('Preenchendo o captcha e submetendo formulário')
-        try {
+        let tentativa = 1;
+        let erro = false;
+        do {
+            let readFile;
+            console.log("Preenchendo o formulário - tentativa " + tentativa);
             yield nightmare
-                .type('input[id="captcha"]', campo)
-                .click('button[type="submit"]')
-                .wait('div[class="table-wrapper scrollable stroked margin-v"]')
-        } catch (e) {
-            let erro = yield nightmare.evaluate(function () {
-                let body = document.querySelector('span[class="pill error"][id="_captcha"]');
-                console.log(body)
+                .select('select[id="restaurante"]', "41")
+                .type('input[name="periodo.inicio"]', dataInicio)
+                .wait('div[id="divRefeicoes"]')
+                .type('input[name="periodo.fim"]', dataFim)
+                .check('input[id="opcaoVegetariana_false"]')
+                .check('input[id="checkTipoRefeicao2"]')
+                .screenshotSelector({selector: 'img[id="imgCaptcha"]', path: 'screen.png'})
+
+            console.log("Imagem do captcha salva")
+            yield jimp.read("screen.png").then(image => {
+                return image.normalize().greyscale().contrast(0.8).write('text.png')
             });
-        }
+            yield nightmare
+                .wait(1000)
+            readFile = fs.createReadStream('./text.png');
+            data = new formData();
+            data.append('language', 'por')
+            data.append('isOverlayRequired', 'false');
+            data.append('iscreatesearchablepdf', 'false');
+            data.append('issearchablepdfhidetextlayer', 'false');
+            data.append('filetype', 'png')
+            data.append('OCREngine', '2');
+            data.append('url', readFile);
+            console.log('Buscando o texto da imagem')
+            campo = yield axios({
+                method: 'post',
+                url: 'https://api.ocr.space/parse/image',
+                headers: {
+                    'apikey': 'API',
+                    ...data.getHeaders()
+                },
+                data: data
+            })
+                .then(function (response) {
+                    console.log(response.data)
+                    if (response.data.ParsedResults[0] && response.data.ParsedResults[0].ParsedText) {
+                        let text = response.data.ParsedResults[0].ParsedText
+                        return text.replace(/\s/g, '').toUpperCase();
+                    } else {
+                        return "ERRO";
+                    }
+                })
+            console.log("CAPTCHA: " + campo);
+            console.log('Preenchendo o captcha e submetendo formulário')
+            readFile.destroy();
+            try {
+                erro = yield nightmare
+                    .type('input[id="captcha"]', '')
+                    .type('input[id="captcha"]', campo)
+                    .click('button[type="submit"]')
+                    .wait('div[class="table-wrapper scrollable stroked margin-v"]')
+                    .then(function () {
+                        return false;
+                    })
+            } catch (e) {
+                erro = yield nightmare.evaluate(function () {
+                    let resultadoCaptcha = document.getElementById('_captcha').innerText;
+                    if (resultadoCaptcha === 'Campo inválido') {
+                        return true;
+                    }
+                });
+            }
+            tentativa++;
+        } while (erro);
     } catch (e) {
+        console.log(e);
         console.log("Ocorreu algum erro, visualize a imagem")
     }
     console.log("Salvando imagem");
