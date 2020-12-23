@@ -6,8 +6,12 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "axios": "^0.21.1",
+    "form-data": "^3.0.0",
+    "jimp": "^0.16.1",
     "moment": "^2.24.0",
     "nightmare": "^3.0.1",
+    "nightmare-screenshot-selector": "^1.0.2",
     "request": "^2.88.0",
     "vo": "^4.0.2"
   }
