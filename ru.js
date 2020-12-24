@@ -92,7 +92,7 @@ function* run() {
             }
         });
         let tentativa = 1;
-        let erro = false;
+        let erroCaptcha = false;
         do {
             let readFile;
             console.log("Preenchendo o formulário - tentativa " + tentativa);
@@ -142,7 +142,7 @@ function* run() {
             console.log('Preenchendo o captcha e submetendo formulário')
             readFile.destroy();
             try {
-                erro = yield nightmare
+                erroCaptcha = yield nightmare
                     .type('input[id="captcha"]', '')
                     .type('input[id="captcha"]', campo)
                     .click('button[type="submit"]')
@@ -151,15 +151,13 @@ function* run() {
                         return false;
                     })
             } catch (e) {
-                erro = yield nightmare.evaluate(function () {
+                erroCaptcha = yield nightmare.evaluate(function () {
                     let resultadoCaptcha = document.getElementById('_captcha').innerText;
-                    if (resultadoCaptcha === 'Campo inválido') {
-                        return true;
-                    }
+                    return resultadoCaptcha === 'Campo inválido';
                 });
             }
             tentativa++;
-        } while (erro);
+        } while (erroCaptcha && tentativa <= 10);
     } catch (e) {
         console.log("Ocorreu algum erro, visualize a imagem")
     }
