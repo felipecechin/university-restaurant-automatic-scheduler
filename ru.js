@@ -10,7 +10,7 @@ let Nightmare = require('nightmare')
     , axios = require('axios')
     , formData = require('form-data')
     , fs = require('fs')
-;
+    , rimraf = require("rimraf");
 
 const screenshotSelector = require('nightmare-screenshot-selector');
 Nightmare.action('screenshotSelector', screenshotSelector)
@@ -63,7 +63,11 @@ function* run() {
     let data;
     var dimensoes = "";
     let campo;
+    let dir = './tmp';
     try {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+        }
         console.log('Iniciando agendamento do RU');
 
         console.log("Preenchendo login")
@@ -99,15 +103,15 @@ function* run() {
                 .type('input[name="periodo.fim"]', dataFim)
                 .check('input[id="opcaoVegetariana_false"]')
                 .check('input[id="checkTipoRefeicao2"]')
-                .screenshotSelector({selector: 'img[id="imgCaptcha"]', path: 'screen.png'})
+                .screenshotSelector({selector: 'img[id="imgCaptcha"]', path: dir + '/screen.png'})
 
             console.log("Imagem do captcha salva")
-            yield jimp.read("screen.png").then(image => {
-                return image.normalize().greyscale().contrast(0.8).write('text.png')
+            yield jimp.read(dir + "/screen.png").then(image => {
+                return image.normalize().greyscale().contrast(0.8).write(dir + '/text.png')
             });
             yield nightmare
                 .wait(1000)
-            readFile = fs.createReadStream('./text.png');
+            readFile = fs.createReadStream(dir + '/text.png');
             data = new formData();
             data.append('language', 'por')
             data.append('isOverlayRequired', 'false');
@@ -164,7 +168,7 @@ function* run() {
     yield nightmare.viewport(dimensoes.width, dimensoes.height)
         .wait(1000)
         .screenshot('./images/ru.png');
-
+    rimraf.sync(dir);
 
     yield nightmare.end();
 }
