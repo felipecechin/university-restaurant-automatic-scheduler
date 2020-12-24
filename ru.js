@@ -66,14 +66,9 @@ function* run() {
     try {
         console.log('Iniciando agendamento do RU');
 
-        console.log("Esperando tela de login");
-        yield nightmare
-            .goto('https://portal.ufsm.br/ru/')
-            .wait()
-            .wait(1000)
-
         console.log("Preenchendo login")
         yield nightmare
+            .goto('https://portal.ufsm.br/ru/')
             .wait('form')
             .type('input[id=login]', matricula)
             .type('input[id=senha]', senha)
@@ -162,7 +157,6 @@ function* run() {
             tentativa++;
         } while (erro);
     } catch (e) {
-        console.log(e);
         console.log("Ocorreu algum erro, visualize a imagem")
     }
     console.log("Salvando imagem");
